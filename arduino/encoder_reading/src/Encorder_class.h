@@ -1,8 +1,8 @@
 #include <Arduino.h>
 
-const double pi = 3.141592653589793;  // 円周率
-
 struct Encorder {
+  private:
+    const double pi = 3.141592653589793;  // 円周率
   // 定数の宣言
   struct Constants {
     const int pinA;
