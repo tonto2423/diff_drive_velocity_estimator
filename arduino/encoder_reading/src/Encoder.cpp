@@ -4,13 +4,13 @@
 #include "constants.h"
 
 // 参考：https://www.shujima.work/entry/2018/07/29/013935
-void Encoder::count_A() {
+void Encoder::countA() {
     int A = digitalRead(pinA);
     int B = digitalRead(pinB);
     if (A == B) { count += -1; }
     else { count += 1; }
 }
-void Encoder::count_B() {
+void Encoder::countB() {
     int A = digitalRead(pinA);
     int B = digitalRead(pinB);
     if (A == B) { count += 1; }
