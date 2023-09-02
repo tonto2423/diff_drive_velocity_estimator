@@ -1,3 +1,8 @@
+/**
+ * @file Encoder.h
+
+ * @brief エンコーダのパルスを読んで角速度やカウント速度を出力するクラス
+**/
 #ifndef ENCODER_H
 #define ENCODER_H
 
@@ -35,4 +40,4 @@ public:
   void reserveCount();                 // 前回変数の保存
 };
 
-#endif ENCODER_H
+#endif

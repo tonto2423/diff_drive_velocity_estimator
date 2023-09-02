@@ -1,4 +1,8 @@
-// Encoder_class.hの実装
+/**
+ * @file Encoder.cpp
+
+ * @brief Encoder.hの実装ファイル
+**/
 #include <Arduino.h>
 #include "Encoder.h"
 #include "constants.h"

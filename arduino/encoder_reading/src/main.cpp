@@ -1,5 +1,8 @@
-// A相、B相の割り込みで四逓倍カウントを行うプログラム
-// タイマ割り込みでシリアルプリントする
+/**
+ * @file main.cpp
+
+ * @brief A相、B相の割り込みで四逓倍カウントを行うプログラム．一定のサンプリング周期でタイマ割り込みをする．
+**/
 #include <Arduino.h>
 #include <MsTimer2.h>
 #include "Encoder.h"
