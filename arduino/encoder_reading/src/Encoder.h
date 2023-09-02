@@ -1,3 +1,6 @@
+#ifndef ENCODER_H
+#define ENCODER_H
+
 #include <Arduino.h>
 
 class Encoder
@@ -31,3 +34,5 @@ public:
   double countSpeed();                 // カウント速度の計算
   void reserveCount();                 // 前回変数の保存
 };
+
+#endif ENCODER_H
