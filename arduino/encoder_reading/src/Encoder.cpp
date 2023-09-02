@@ -4,8 +4,18 @@
 #include "constants.h"
 
 // 参考：https://www.shujima.work/entry/2018/07/29/013935
-void Encoder::count_A() { count += digitalRead(pinA) == digitalRead(pinB) ? -1 : 1; }
-void Encoder::count_B() { count += digitalRead(pinA) == digitalRead(pinB) ? 1 : -1; }
+void Encoder::count_A() {
+    int A = digitalRead(pinA);
+    int B = digitalRead(pinB);
+    if (A == B) { count += -1; }
+    else { count += 1; }
+}
+void Encoder::count_B() {
+    int A = digitalRead(pinA);
+    int B = digitalRead(pinB);
+    if (A == B) { count += 1; }
+    else { count += -1; }
+}
 double Encoder::omega()
 {
     // 角速度 [rad/sec]を返す関数
