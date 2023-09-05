@@ -10,6 +10,12 @@
 #include <ros.h>
 #include <diff_drive_velocity_estimator/EncoderData.h>  // 追加されたヘッダーファイルへのパス。必要に応じて変更する。
 
+ros::NodeHandle nh;
+
+// EncoderData型のメッセージをpublishするためのpublisherを定義
+diff_drive_velocity_estimator::EncoderData encoder_msg;
+ros::Publisher encoder_pub("encoder_data", &encoder_msg);
+
 const double periodTime = 100.0;      // サンプリング周期 [msec]
 const double resolution = 540.0;      // 分解能: 45(減速比) * 3(エンコーダの分解能) * 4(逓倍)
 
