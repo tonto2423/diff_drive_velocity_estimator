@@ -3,6 +3,8 @@
 
  * @brief A相、B相の割り込みで四逓倍カウントを行うプログラム．一定のサンプリング周期でタイマ割り込みをする．
 **/
+// ROSserial_pythonのノードの起動:
+// rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=115200
 #define MONITOR_SPEED 115200
 #include <Arduino.h>
 #include <MsTimer2.h>
