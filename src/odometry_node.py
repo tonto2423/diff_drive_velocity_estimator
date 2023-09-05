@@ -2,6 +2,7 @@
 import rospy
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist, Pose2D
+import math
 
 class OdometryNode:
     def __init__(self):
@@ -23,6 +24,7 @@ class OdometryNode:
         # 速度計算
         self.tireRadius = 0.033     # タイヤ半径 [m]
         self.tireDist = 0.146       # タイヤ間距離 [m]
+        self.delta_t = 0.010        # サンプリング周期 [sec]
 
     def encoder_callback(self, data):
         # エンコーダデータを受け取るコールバック関数
@@ -35,6 +37,7 @@ class OdometryNode:
         # エンコーダデータからロボットの速度を計算する関数
         linearVel = self.tireRadius / 2.0 * (self.omegaRight - self.omegaLeft)              # ロボット線速度 [m/sec]
         angularVel = self.tireRadius / self.tireDist * (self.omegaRight + self.omegaLeft)   # ロボット角速度 [rad/sec]
+        # メッセージへの格納
         velocity_msg = Twist()
         velocity_msg.linear.x = linearVel
         velocity_msg.angular.z = angularVel
@@ -42,11 +45,17 @@ class OdometryNode:
 
     def compute_pose(self):
         # エンコーダデータからロボットの自己位置を計算する関数
-        # (実際の位置計算ロジックをここに追加)
+        v = compute_velocity().linear.x                     # ロボット線速度の取得
+        omega = compute_velocity().angular.z                # ロボット角速度の取得
+        x_position += v * math.cos(theta) * self.delta_t
+        y_position += v * math.sin(theta) * self.delta_t
+        theta += omega * self.delta_t
+        theta = (theta + math.pi) % (2 * math.pi) - math.pi
+        # メッセージへの格納
         pose_msg = Pose2D()
-        # pose_msg.x = ...
-        # pose_msg.y = ...
-        # pose_msg.theta = ...
+        pose_msg.x = x_position
+        pose_msg.y = y_position
+        pose_msg.theta = theta
         return pose_msg
 
     def run(self):
@@ -55,11 +64,11 @@ class OdometryNode:
             if self.encoder_data:
                 # データを計算
                 velocity_msg = self.compute_velocity()
-                # pose_msg = self.compute_pose()
+                pose_msg = self.compute_pose()
 
                 # データをpublish
                 self.velocity_pub.publish(velocity_msg)
-                # self.pose_pub.publish(pose_msg)
+                self.pose_pub.publish(pose_msg)
             rate.sleep()
 
 if __name__ == '__main__':
