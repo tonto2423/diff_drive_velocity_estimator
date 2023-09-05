@@ -3,6 +3,7 @@
 
  * @brief A相、B相の割り込みで四逓倍カウントを行うプログラム．一定のサンプリング周期でタイマ割り込みをする．
 **/
+#define MONITOR_SPEED 115200
 #include <Arduino.h>
 #include <MsTimer2.h>
 #include "Encoder.h"
@@ -32,7 +33,7 @@ void countB_wrapper_L() { encLeft.countB(); }
 // タイマ割り込みする関数の宣言
 void monitor()
 {
-  encoder_msg.countLeft = encLeft.getCount;
+  encoder_msg.countLeft = encLeft.getCount();
   encoder_msg.countSpeedLeft = encLeft.countSpeed();
   encoder_msg.countRight = encRight.getCount();
   encoder_msg.countSpeedRight = encRight.countSpeed();
@@ -52,7 +53,8 @@ void monitor()
 
 void setup()
 {
-  // Serial.begin(115200);
+  nh.getHardware()->setBaud(MONITOR_SPEED); // ROSとのシリアル通信のボーレートの設定
+  Serial.begin(MONITOR_SPEED);              // ハードウェアシリアルのボーレート
   nh.initNode();
   nh.advertise(encoder_pub);
   // 入力ピンが変化した時に割り込みを入れる
