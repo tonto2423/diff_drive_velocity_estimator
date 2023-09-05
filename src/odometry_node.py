@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import rospy
-from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist, Pose2D
+from diff_drive_velocity_estimator.msg import EncoderData
 import math
 
 class OdometryNode:
     def __init__(self):
         # Subscriberの定義
-        rospy.Subscriber('/EncoderData', Float64, self.encoder_callback)
+        rospy.Subscriber('/EncoderData', EncoderData, self.encoder_callback)
         
         # Publisherの定義
         self.velocity_pub = rospy.Publisher('/estimated_velocity', Twist, queue_size=10)
@@ -25,6 +25,9 @@ class OdometryNode:
         self.tireRadius = 0.033     # タイヤ半径 [m]
         self.tireDist = 0.146       # タイヤ間距離 [m]
         self.delta_t = 0.010        # サンプリング周期 [sec]
+     
+        self.data_updated = False   # publish実行フラグ
+
 
     def encoder_callback(self, data):
         # エンコーダデータを受け取るコールバック関数
@@ -32,6 +35,7 @@ class OdometryNode:
         self.omegaLeft = 2.0 * self.pi * data.countSpeedLeft / self.resolution
         self.countRight = data.countRight
         self.omegaRight = 2.0 * self.pi * data.countSpeedRight / self.resolution
+        self.data_updated = True  # フラグをセット
 
     def compute_velocity(self):
         # エンコーダデータからロボットの速度を計算する関数
@@ -45,8 +49,8 @@ class OdometryNode:
 
     def compute_pose(self):
         # エンコーダデータからロボットの自己位置を計算する関数
-        v = compute_velocity().linear.x                     # ロボット線速度の取得
-        omega = compute_velocity().angular.z                # ロボット角速度の取得
+        v = self.compute_velocity().linear.x                     # ロボット線速度の取得
+        omega = self.compute_velocity().angular.z                # ロボット角速度の取得
         x_position += v * math.cos(theta) * self.delta_t
         y_position += v * math.sin(theta) * self.delta_t
         theta += omega * self.delta_t
@@ -59,9 +63,10 @@ class OdometryNode:
         return pose_msg
 
     def run(self):
-        rate = rospy.Rate(10)  # 10Hz
+        rate_frequency = 1.0 / self.delta_t     # サンプリング周期の逆数を計算
+        rate = rospy.Rate(rate_frequency)       # 計算された頻度でrospy.Rateを設定
         while not rospy.is_shutdown():
-            if self.encoder_data:
+            if self.data_updated:  # フラグをチェック
                 # データを計算
                 velocity_msg = self.compute_velocity()
                 pose_msg = self.compute_pose()
@@ -69,6 +74,7 @@ class OdometryNode:
                 # データをpublish
                 self.velocity_pub.publish(velocity_msg)
                 self.pose_pub.publish(pose_msg)
+                self.data_updated = False  # フラグをリセット
             rate.sleep()
 
 if __name__ == '__main__':
