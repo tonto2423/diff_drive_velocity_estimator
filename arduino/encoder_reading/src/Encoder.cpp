@@ -30,7 +30,7 @@ double Encoder::countSpeed()
     // カウント速度 [count/sec]を返す関数
     return (count - preCount) / periodTime * 1000;
 }
-void Encoder::reserveCount()
+void Encoder::savePreviousCount()
 {
     // 前回変数の保存
     preCount = count;

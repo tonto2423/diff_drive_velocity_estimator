@@ -40,15 +40,9 @@ void monitor()
   // データをパブリッシュ
   encoder_pub.publish(&encoder_msg);
   nh.spinOnce();
-  // // 角速度の表示
-  // Serial.print("Right:");
-  // Serial.print(encRight.omega());
-  // Serial.print(",\t");
-  // Serial.print("Left:");
-  // Serial.println(encLeft.omega());
   // 前回変数の保存
-  encRight.reserveCount();
-  encLeft.reserveCount();
+  encRight.savePreviousCount();
+  encLeft.savePreviousCount();
 }
 
 void setup()

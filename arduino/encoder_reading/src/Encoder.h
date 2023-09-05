@@ -38,7 +38,7 @@ public:
   void countB();                         // B相のカウント
   double omega();                        // 角速度の計算
   double countSpeed();                   // カウント速度の計算
-  void reserveCount();                   // 前回変数の保存
+  void savePreviousCount();                   // 前回変数の保存
 };
 
 #endif
