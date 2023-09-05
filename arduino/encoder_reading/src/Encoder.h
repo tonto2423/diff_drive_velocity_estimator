@@ -31,13 +31,14 @@ public:
   }
 
   // メンバ関数
-  int getPinA() const { return pinA; } // pinAのgetter
-  int getPinB() const { return pinB; } // pinBのgetter
-  void countA();                      // A相のカウント
-  void countB();                      // B相のカウント
-  double omega();                      // 角速度の計算
-  double countSpeed();                 // カウント速度の計算
-  void reserveCount();                 // 前回変数の保存
+  int getPinA() const { return pinA; }   // pinAのgetter
+  int getPinB() const { return pinB; }   // pinBのgetter
+  int getCount() const { return count; } // countのgetter
+  void countA();                         // A相のカウント
+  void countB();                         // B相のカウント
+  double omega();                        // 角速度の計算
+  double countSpeed();                   // カウント速度の計算
+  void reserveCount();                   // 前回変数の保存
 };
 
 #endif
