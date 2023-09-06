@@ -10,8 +10,8 @@ def EncoderTalker():
     encoder_data = EncoderData() # インスタンスの生成
     encoder_data.countLeft = 2
     encoder_data.countRight = -2
-    encoder_data.countSpeedLeft = 20.0
-    encoder_data.countSpeedRight = -20.0
+    encoder_data.countSpeedLeft = -200.0
+    encoder_data.countSpeedRight = +200.0
     
     r = rospy.Rate(1) # 10hz
     while not rospy.is_shutdown():
