@@ -20,23 +20,25 @@ class OdometryNode:
         self.countRight = 0         # 右のカウント
         self.omegaRight = 0.0       # 右の角速度 [rad/sec]
         
+        self.resolution = 540.0     # タイヤ分解能 (ギヤ比、逓倍も含む)
+        self.pi = 3.1415926535      # 円周率
         self.delta_t = 0.010        # サンプリング周期 [sec]
         
     def encoder_callback(self, data):
         # エンコーダデータを受け取るコールバック関数
         self.countLeft = data.countLeft
-        # self.omegaLeft = 2.0 * self.pi * data.countSpeedLeft / self.resolution
+        self.omegaLeft = 2.0 * self.pi * data.countSpeedLeft / self.resolution
         self.countRight = data.countRight
-        # self.omegaRight = 2.0 * self.pi * data.countSpeedRight / self.resolution
-        self.omegaLeft = data.countSpeedLeft
-        self.omegaRight = data.countSpeedRight
+        self.omegaRight = 2.0 * self.pi * data.countSpeedRight / self.resolution
         
-
     def compute_velocity(self):
+        # エンコーダデータからロボットの速度を計算する関数
+        linearVel = self.tireRadius / 2.0 * (self.omegaRight - self.omegaLeft)              # ロボット線速度 [m/sec]
+        angularVel = self.tireRadius / self.tireDist * (self.omegaRight + self.omegaLeft)   # ロボット角速度 [rad/sec]
         # メッセージへの格納
         velocity_msg = Twist()
-        velocity_msg.linear.x = self.omegaLeft
-        velocity_msg.angular.z = self.omegaRight
+        velocity_msg.linear.x = linearVel
+        velocity_msg.angular.z = angularVel
         return velocity_msg
 
     def compute_pose(self):
