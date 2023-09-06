@@ -1,0 +1,38 @@
+<launch>
+
+    <!-- LiDARのドライバノード -->
+    <node name="ld06_lidar" pkg="ld06_lidar" type="ld06_lidar" args="LD06" output="screen">
+        <param name="serial_port" value="/dev/ttyUSB0"/>
+        <param name="lidar_frame" value="laser"/>
+        <remap from="/LiDAR/LD06" to="/scan"/>
+    </node>
+
+    <!-- LiDARからbase_linkへの座標変換を行うノード -->
+    <node name="lidar_tf_broadcaster" pkg="diff_drive_velocity_estimator" type="lidar_node.py" output="screen"/>
+
+    <!-- マイクロコントローラとの通信のためのROSserial_pythonノード -->
+    <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen">
+        <!-- 必要に応じて他のパラメータや引数を追加 -->
+    </node>
+
+    <!-- オドメトリノード -->
+    <node name="odometry_node" pkg="diff_drive_velocity_estimator" type="odometry_node.py" output="screen"/>
+
+    <!-- Pose2Dを/odomに変換するノード -->
+    <node name="pose2d_to_odometry" pkg="diff_drive_velocity_estimator" type="pose2d_to_odometry.py" output="screen"/>
+
+    <!-- AMCLノード -->
+    <node name="amcl" pkg="amcl" type="amcl" output="screen">
+        <!-- 必要に応じて他のパラメータや引数を追加 -->
+        <param name="odom_frame_id" value="odom"/>
+        <param name="base_frame_id" value="base_link"/>
+        <param name="global_frame_id" value="map"/>
+        <param name="odom_model_type" value="diff"/>
+        <param name="scan_topic" value="/scan"/>
+        <!-- ここにAMCLの他のパラメータを追加 -->
+    </node>
+
+    <!-- マップサーバノード -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find diff_drive_velocity_estimator)/maps/map-data.yaml" output="screen"/>
+    
+</launch>
