@@ -1,0 +1,10 @@
+image: map-data.jpg
+resolution: 16.25 # この値は1ピクセルが何メートルに相当するかを示しています。この例では1ピクセル = 0.01メートル (1cm) です。適切な値に変更する必要があるかもしれません。
+origin: [0.25, 0.25, 0.0] # 原点の座標と回転角度
+negate: 0
+occupied_thresh: 0.65 # 占有されていると判断される確率のしきい値
+free_thresh: 0.196 # 空いていると判断される確率のしきい値
+
+# How to use:
+# $ roscd diff_drive_velocity_estimator/
+# $ rosrun map_server map_server maps/map-data.yaml
