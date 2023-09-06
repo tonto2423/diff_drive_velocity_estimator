@@ -4,6 +4,7 @@ from geometry_msgs.msg import Twist, Pose2D
 from diff_drive_velocity_estimator.msg import EncoderData
 import math
 
+# サブスクライブのテスト
 class OdometryNode:
     def __init__(self):
         # Subscriberの定義
@@ -13,7 +14,6 @@ class OdometryNode:
         self.velocity_pub = rospy.Publisher('/estimated_velocity', Twist, queue_size=10)
         self.pose_pub = rospy.Publisher('/estimated_pose', Pose2D, queue_size=10)
 
-        # 変数の初期化
         # エンコーダ速度受け取り
         self.countLeft = 0          # 左のカウント
         self.omegaLeft = 0.0        # 左の角速度 [rad/sec]
@@ -24,10 +24,13 @@ class OdometryNode:
         # 速度計算
         self.tireRadius = 0.033     # タイヤ半径 [m]
         self.tireDist = 0.146       # タイヤ間距離 [m]
-        self.delta_t = 0.010        # サンプリング周期 [sec]
-     
+        self.delta_t = 0.1          # サンプリング周期 [sec]
+        # 位置計算
+        self.x_position = 0.0       # 初期位置x [m]
+        self.y_position = 0.0       #　初期位置y [m]
+        self.theta = 0.0            # 初期角度位置theta [m]
+        
         self.data_updated = False   # publish実行フラグ
-
 
     def encoder_callback(self, data):
         # エンコーダデータを受け取るコールバック関数
@@ -39,27 +42,27 @@ class OdometryNode:
 
     def compute_velocity(self):
         # エンコーダデータからロボットの速度を計算する関数
-        linearVel = self.tireRadius / 2.0 * (self.omegaRight - self.omegaLeft)              # ロボット線速度 [m/sec]
-        angularVel = self.tireRadius / self.tireDist * (self.omegaRight + self.omegaLeft)   # ロボット角速度 [rad/sec]
+        linearVel = self.tireRadius * (self.omegaRight - self.omegaLeft) / 2.0              # ロボット線速度 [m/sec]
+        angularVel = self.tireRadius * (self.omegaRight + self.omegaLeft) / self.tireDist   # ロボット角速度 [rad/sec]
         # メッセージへの格納
         velocity_msg = Twist()
         velocity_msg.linear.x = linearVel
         velocity_msg.angular.z = angularVel
+        # velocity_msg.linear.x = self.omegaLeft
+        # velocity_msg.angular.z = self.omegaRight
         return velocity_msg
 
-    def compute_pose(self):
+    def compute_pose(self, v, omega):
         # エンコーダデータからロボットの自己位置を計算する関数
-        v = self.compute_velocity().linear.x                     # ロボット線速度の取得
-        omega = self.compute_velocity().angular.z                # ロボット角速度の取得
-        x_position += v * math.cos(theta) * self.delta_t
-        y_position += v * math.sin(theta) * self.delta_t
-        theta += omega * self.delta_t
-        theta = (theta + math.pi) % (2 * math.pi) - math.pi
+        self.x_position += v * math.cos(self.theta) * self.delta_t
+        self.y_position += v * math.sin(self.theta) * self.delta_t
+        self.theta += omega * self.delta_t
+        self.theta = (self.theta + math.pi) % (2 * math.pi) - math.pi
         # メッセージへの格納
         pose_msg = Pose2D()
-        pose_msg.x = x_position
-        pose_msg.y = y_position
-        pose_msg.theta = theta
+        pose_msg.x = self.x_position
+        pose_msg.y = self.y_position
+        pose_msg.theta = self.theta
         return pose_msg
 
     def run(self):
@@ -67,14 +70,15 @@ class OdometryNode:
         rate = rospy.Rate(rate_frequency)       # 計算された頻度でrospy.Rateを設定
         while not rospy.is_shutdown():
             if self.data_updated:  # フラグをチェック
+                rospy.loginfo("受け取ったデータ横流し中卍")
+                    
                 # データを計算
                 velocity_msg = self.compute_velocity()
-                pose_msg = self.compute_pose()
+                pose_msg = self.compute_pose(velocity_msg.linear.x, velocity_msg.angular.z)
 
                 # データをpublish
                 self.velocity_pub.publish(velocity_msg)
                 self.pose_pub.publish(pose_msg)
-                self.data_updated = False  # フラグをリセット
             rate.sleep()
 
 if __name__ == '__main__':
