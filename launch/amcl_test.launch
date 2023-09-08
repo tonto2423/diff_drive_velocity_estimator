@@ -42,7 +42,12 @@
     <!-- odomフレームとbase_linkフレームのtf -->
     <node name="odom_to_base_link" pkg="diff_drive_velocity_estimator" type="odom_to_base_link.py" output="screen"/>
 
+    <!-- mapフレームに対するbase_linkのtf(based on /amcl_pose) -->
+    <node name="base_link_to_map_tf_broadcaster" pkg="diff_drive_velocity_estimator" type="base_link_to_map.py" output="screen"/>
+    
     <!-- マップサーバノード -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find diff_drive_velocity_estimator)/maps/map-data.yaml" output="screen"/>
     
+    <!-- rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find diff_drive_velocity_estimator)/rviz/amcl-test.rviz"/>
 </launch>
