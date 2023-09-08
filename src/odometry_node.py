@@ -8,7 +8,7 @@ import math
 class OdometryNode:
     def __init__(self):
         # Subscriberの定義
-        rospy.Subscriber('/EncoderData', EncoderData, self.encoder_callback)
+        rospy.Subscriber('/encoder_data', EncoderData, self.encoder_callback)
         
         # Publisherの定義
         self.velocity_pub = rospy.Publisher('/estimated_velocity', Twist, queue_size=10)
@@ -29,7 +29,7 @@ class OdometryNode:
         self.x_position = 0.0       # 初期位置x [m]
         self.y_position = 0.0       #　初期位置y [m]
         self.theta = 0.0            # 初期角度位置theta [m]
-        
+
         self.data_updated = False   # publish実行フラグ
 
     def encoder_callback(self, data):
@@ -71,7 +71,7 @@ class OdometryNode:
         while not rospy.is_shutdown():
             if self.data_updated:  # フラグをチェック
                 rospy.loginfo("受け取ったデータ横流し中卍")
-                    
+
                 # データを計算
                 velocity_msg = self.compute_velocity()
                 pose_msg = self.compute_pose(velocity_msg.linear.x, velocity_msg.angular.z)

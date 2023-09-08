@@ -5,7 +5,7 @@ from diff_drive_velocity_estimator.msg import EncoderData
 # 偽エンコーダパブリッシャ
 def EncoderTalker():
     rospy.init_node('EncoderTalker')
-    pub = rospy.Publisher('/EncoderData', EncoderData, queue_size=10)
+    pub = rospy.Publisher('/encoder_data', EncoderData, queue_size=10)
     
     encoder_data = EncoderData() # インスタンスの生成
     encoder_data.countLeft = 2
