@@ -26,8 +26,9 @@ class OdometryNode:
         self.tireDist = 0.146       # タイヤ間距離 [m]
         self.delta_t = 0.1          # サンプリング周期 [sec]
         # 位置計算
+        # 初期位置は0固定(相対的な位置を知るのがodomノードのため)
         self.x_position = 0.0       # 初期位置x [m]
-        self.y_position = 0.0       #　初期位置y [m]
+        self.y_position = 0.0       # 初期位置y [m]
         self.theta = 0.0            # 初期角度位置theta [m]
 
         self.data_updated = False   # publish実行フラグ
