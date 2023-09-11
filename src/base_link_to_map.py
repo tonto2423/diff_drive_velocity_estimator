@@ -6,8 +6,9 @@ import tf
 
 class base_linkToMap():
     def __init__(self):
+        topic_name = rospy.get_param('~pose_topic', '/amcl_pose')
         # amcl_poseトピックをサブスクライブ
-        rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.pose_callback)
+        rospy.Subscriber(topic_name, PoseWithCovarianceStamped, self.pose_callback)
         # ブロードキャスターのインスタンスを生成
         self.br = tf.TransformBroadcaster()
         # 変数の初期化
