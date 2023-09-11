@@ -1,0 +1,86 @@
+<launch>
+
+    <!-- LiDARのドライバノード -->
+    <node name="ld06_lidar" pkg="ld06_lidar" type="ld06_lidar" args="LD06" output="screen">
+        <param name="serial_port" value="/dev/ttyUSB0"/>
+        <param name="lidar_frame" value="laser"/>
+        <remap from="/LiDAR/LD06" to="/scan"/>
+    </node>
+
+    <!-- LiDARからbase_linkへの座標変換を行うノード -->
+    <node name="lidar_tf_broadcaster" pkg="diff_drive_velocity_estimator" type="lidar_node.py" />
+
+    <!-- base_linkとbase_footprintのtf -->
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_footprint"
+        args="0 0 0 0 0 0 base_link base_footprint 100" />
+
+    <!-- マイクロコントローラとの通信のためのROSserial_pythonノード -->
+    <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen">
+        <param name="port" value="/dev/ttyACM0"/>
+        <param name="baud" value="115200"/>
+    </node>
+
+    <!-- オドメトリノード -->
+    <node name="odometry_node" pkg="diff_drive_velocity_estimator" type="odometry_node.py" />
+
+    <!-- Pose2Dを/odomに変換するノード -->
+    <node name="pose2d_to_odometry" pkg="diff_drive_velocity_estimator" type="pose2d_to_odometry.py" />
+   
+    <!-- Arguments for emcl2-->
+    <arg name="scan_topic"     default="scan"/>
+    <arg name="initial_pose_x" default="0.915"/>
+    <arg name="initial_pose_y" default="0.070"/>
+    <arg name="initial_pose_a" default="1.57"/>
+
+    <!-- EMCL2 -->
+    <node pkg="emcl2" type="emcl2_node" name="emcl2_node" output="screen">
+
+        <param name="odom_freq"                 value="20"/>
+        <param name="num_particles"             value="500"/>
+
+        <param name="odom_frame_id"             value="odom"/>
+        <param name="footprint_frame_id"        value="base_footprint"/>
+        <param name="base_frame_id"             value="base_link"/>
+
+        <param name="initial_pose_x"            value="$(arg initial_pose_x)"/>
+        <param name="initial_pose_y"            value="$(arg initial_pose_y)"/>
+        <param name="initial_pose_a"            value="$(arg initial_pose_a)"/>
+
+        <param name="odom_fw_dev_per_fw"       value="0.19"/>
+        <param name="odom_fw_dev_per_rot"      value="0.0001"/>
+        <param name="odom_rot_dev_per_fw"      value="0.13"/>
+        <param name="odom_rot_dev_per_rot"     value="0.2"/>
+
+        <param name="laser_likelihood_max_dist" value="0.2"/>
+
+        <param name="alpha_threshold" value="0.5"/>
+        <param name="open_space_threshold" value="0.05"/>
+
+        <param name="expansion_radius_position" value="0.1"/>
+        <param name="expansion_radius_orientation" value="0.2"/>
+
+        <param name="range_threshold" value="0.3"/>
+
+        <remap from="scan"                      to="$(arg scan_topic)"/>
+        <param name="laser_min_range"           value="0.0"/>
+        <param name="laser_max_range"           value="100000000.0"/>
+
+        <param name="scan_increment"           value="1"/>
+
+        <param name="use_map_topic" value="true"/>
+    </node>
+
+    <!-- odomフレームとbase_linkフレームのtf -->
+    <node name="odom_to_base_link" pkg="diff_drive_velocity_estimator" type="odom_to_base_link.py" />
+
+    <!-- mapフレームに対するbase_linkのtf(based on /amcl_pose)
+    <node name="base_link_to_map_tf_broadcaster" pkg="diff_drive_velocity_estimator" type="base_link_to_map.py" >
+        <param name="pose_topic" value="/mcl_pose"/>
+    </node>
+     -->
+    <!-- マップサーバノード -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find diff_drive_velocity_estimator)/maps/map-data.yaml" output="screen"/>
+    
+    <!-- rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find diff_drive_velocity_estimator)/rviz/amcl-test.rviz"/>
+</launch>
