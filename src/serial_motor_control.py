@@ -11,22 +11,6 @@ rate = rospy.Rate(10) # 10hz
 rospy.loginfo("motor_onを開始します。")
 motor_pub = rospy.Publisher('/motor_on', Bool, queue_size=10)
 
-# def find_arduino_uno_port():
-#     ports = serial.tools.list_ports.comports()
-#     for port in ports:
-#         if "Arduino Uno" in port.description:
-#             return port.device
-#     return None
-
-# arduino_port = find_arduino_uno_port()
-# if arduino_port is None:
-#     print("Arduino Uno not found")
-# else:
-#     print(f"Arduino Uno found on port: {arduino_port}")
-#     # ここでシリアル接続を開始
-#     ser = serial.Serial(arduino_port, 9600, timeout=1)
-#     ser.flush()
-
 ser = serial.Serial(arduino_port, 9600, timeout=1)
 ser.flush()
 
