@@ -33,13 +33,6 @@ ser.flush()
 def send_command(command):
     ser.write(f"{command}\n".encode('utf-8'))
 
-def read_distance():
-    if ser.in_waiting > 0:
-        line = ser.readline().decode('utf-8').rstrip()
-        if line.startswith("Distance:"):
-            distance = float(line.split(" ")[1])
-            print(f"Distance: {distance} m")
-
 try:
     while rospy.is_shutdown() is False:
         command = input("Enter command (start/stop): ")
@@ -52,9 +45,7 @@ try:
             print(f"Invalid command: {command}")
             continue
         send_command(command)
-
-        # Arduinoからのデータを読み取る
-        read_distance()
+        print(f"Command sent: {command}")
 
         rate.sleep() # 10hz
         
